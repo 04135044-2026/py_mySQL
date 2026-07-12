@@ -1,0 +1,48 @@
+<div class="card-toolbar">
+    <h2 style="margin: 0;">產品訂單占比</h2>
+    <button id="back_to_main_pie_button" class="btn" style="display: none" onclick="renderMainPieChart()">&larr;
+        返回主類別</button>
+</div>
+<div id="pie_chart"></div>
+<div id="pie_chart_tooltip" class="viz-tooltip"></div>
+
+
+<script src="{{ url_for('static', filename='js/pie_chart.js') }}"></script>
+<script>
+    // renderPieChart([
+    //     { label: 'A', value: 30 },
+    //     { label: 'B', value: 70 },
+    //     { label: 'C', value: 45 },
+    //     { label: 'D', value: 65 },
+    //     { label: 'E', value: 20 },
+    // ]);
+
+    async function renderMainPieChart() {
+        fetch('/api/category_pie')
+            .then(response => response.json())
+            .then(data => {
+                renderPieChart(data, "#pie_chart", (label) => {
+                    // 點擊主分類後載入子分類資料
+                    fetch(`/api/sub_category_pie/${label}`)
+                        .then(response => response.json())
+                        .then(subData => {
+                            renderPieChart(subData, "#pie_chart");  // 子分類圖，不需要再有 click handler
+                            document.getElementById('back_to_main_pie_button').style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('子分類資料載入失敗:', error);
+                        });
+                });
+
+                document.getElementById('back_to_main_pie_button').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('主分類資料載入失敗:', error);
+            });
+    }
+
+    // 初次載入
+    renderMainPieChart();
+
+
+</script>
