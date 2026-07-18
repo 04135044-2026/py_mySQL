@@ -12,6 +12,7 @@ def create_superstore_tables(database):
         port=config.getint('DB', 'port'),
         cursorclass=pymysql.cursors.DictCursor,
         database=database
+        
     )
 
     # Create tables
